@@ -1,0 +1,57 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sensitive files (念のため)
+.env
+.env.*
+*.env.local
+*.env.production
+*credentials*
+*secret*
+mcp-needs-auth-cache.json
+*.pem
+*.key
+
+# Local-only settings (個人ごとに別)
+claude/settings.json
+claude/settings.local.json
+claude/mcp.json
+
+# Backup directories
+*.backup
+*.bak
+backups/
+
+# Logs
+*.log
+session-log.txt
+
+# Personal session data
+sessions/
+cache/
+file-history/
+session-env/
+history.jsonl
+shell-snapshots/
+
+# Build/test artifacts (script test 中の一時生成)
+/tmp/
+*.tmp
+.test-install/
+
+# Node modules（万が一）
+node_modules/
+
+# Python（万が一）
+__pycache__/
+*.pyc

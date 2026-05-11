@@ -1,0 +1,8 @@
+- [EmTrip team members](team_members.md) — アリー/まこと（宮城信）/ヒデキの本名・通称対応表
+- [EmTrip MVV（公式）](project_emtrip_mvv.md) — Mission「みんなの思い出をみんなの価値に変える」等の公式定義
+- [ココロクロス3店舗の正確な所在地](project_kokorocross_stores.md) — 髙橋商店（八女・酒蔵）/池原酒造（石垣・泡盛）/シーサー注意（豊見城市瀬長島・雑貨土産店・那覇空港5分）
+- [対面MTGのアジェンダ設計原則](feedback_offline_meeting_agenda.md) — 対面は前提修正・解釈合意に絞り、事実報告は事前スプシで非同期収集
+- [「データ不足」ブロックへの返し方](feedback_data_uncertainty_block_response.md) — 「確証ないから話せない」に対しコア反転＋4点アジェンダで切り返す
+- [OPePe戦略アップデート（石垣島ダイビング店PSF並走）](project_opepe_strategy_shift.md) — 2026-04-30「勝ちに行く」転換 + 2026-05-08 石垣島ダイビング店で約1ヶ月のPSF検証を並走
+- [3プロジェクト構成と最終統合方針](project_three_repos_integration.md) — emtrip-miniapp（本番運用）/ emtrip-webchat（Phase α-ε中・900行実装済）/ OPePe の役割分担と統合方針
+- [ベロ族の定義](project_emtrip_velo_zoku.md) — 髙橋商店PoCで観察された「消費型参加層」＝深い興味層ではない（語感で逆に取らない）
