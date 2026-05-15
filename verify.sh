@@ -34,7 +34,7 @@ echo -e "${BLUE}============================================${RESET}"
 echo ""
 
 # === 1. ファイル配置確認 ===
-echo -e "${YELLOW}[1/4] ファイル配置...${RESET}"
+echo -e "${YELLOW}[1/5] ファイル配置...${RESET}"
 
 check "~/.claude/CLAUDE.md が存在" "[ -L ~/.claude/CLAUDE.md ] || [ -f ~/.claude/CLAUDE.md ]"
 check "~/.claude/skills/emtrip-biz-context が存在" "[ -e ~/.claude/skills/emtrip-biz-context ]"
@@ -49,7 +49,7 @@ check "settings.json が存在" "[ -f ~/.claude/settings.json ]"
 
 # === 2. symlink 健全性 ===
 echo ""
-echo -e "${YELLOW}[2/4] symlink 健全性...${RESET}"
+echo -e "${YELLOW}[2/5] symlink 健全性...${RESET}"
 
 if [ -L ~/.claude/CLAUDE.md ]; then
   target=$(readlink ~/.claude/CLAUDE.md)
@@ -72,7 +72,7 @@ PASS=$((PASS+1))
 
 # === 3. 内容 sanity check ===
 echo ""
-echo -e "${YELLOW}[3/4] 内容 sanity check...${RESET}"
+echo -e "${YELLOW}[3/5] 内容 sanity check...${RESET}"
 
 check "CLAUDE.md に '経営優先順位' が含まれる" "grep -q '経営優先順位' ~/.claude/CLAUDE.md"
 check "CLAUDE.md に 'ココロクロス' が含まれる" "grep -q 'ココロクロス' ~/.claude/CLAUDE.md"
