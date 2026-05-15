@@ -24,7 +24,7 @@ echo "  Backup of existing files: $BACKUP_DIR"
 echo ""
 
 # === 1. 前提チェック ===
-echo -e "${YELLOW}[1/6] 前提チェック...${RESET}"
+echo -e "${YELLOW}[1/8] 前提チェック...${RESET}"
 
 if ! command -v claude >/dev/null 2>&1; then
   echo -e "${YELLOW}⚠️  Claude Code CLI (claude コマンド) が見つかりません${RESET}"
@@ -38,7 +38,7 @@ mkdir -p "$BACKUP_DIR"
 mkdir -p ~/.claude
 
 # === 2. CLAUDE.md（symlink化）===
-echo -e "${YELLOW}[2/6] CLAUDE.md 配置...${RESET}"
+echo -e "${YELLOW}[2/8] CLAUDE.md 配置...${RESET}"
 
 if [ -e ~/.claude/CLAUDE.md ] && [ ! -L ~/.claude/CLAUDE.md ]; then
   echo "    既存の CLAUDE.md を backup へ移動"
@@ -50,7 +50,7 @@ ln -s "$REPO_DIR/claude/CLAUDE.md" ~/.claude/CLAUDE.md
 echo -e "${GREEN}    ✅ CLAUDE.md installed (symlink)${RESET}"
 
 # === 3. skills/（個別 symlink）===
-echo -e "${YELLOW}[3/6] skills/ 配置...${RESET}"
+echo -e "${YELLOW}[3/8] skills/ 配置...${RESET}"
 
 mkdir -p ~/.claude/skills
 for skill_dir in "$REPO_DIR/claude/skills"/*/; do
@@ -70,7 +70,7 @@ for skill_dir in "$REPO_DIR/claude/skills"/*/; do
 done
 
 # === 4. memory/（コピー = 石垣が自分でメモリを更新できるように）===
-echo -e "${YELLOW}[4/6] memory/ 配置...${RESET}"
+echo -e "${YELLOW}[4/8] memory/ 配置...${RESET}"
 
 mkdir -p "$MEMORY_DIR"
 
@@ -83,7 +83,7 @@ done
 
 cp "$REPO_DIR/claude/memory/"*.md "$MEMORY_DIR/"
 echo -e "${GREEN}    ✅ memory installed at: $MEMORY_DIR${RESET}"
-echo "       （memory は symlink ではなく実コピー。理由: 石垣が自分のメモリを${YELLOW}自由に追加・編集できるように${RESET}）"
+echo -e "       （memory は symlink ではなく実コピー。理由: 石垣が自分のメモリを${YELLOW}自由に追加・編集できるように${RESET}）"
 
 # === 5. settings.json（無ければ最小テンプレ作成 / 既存ならhookだけ追記）===
 echo -e "${YELLOW}[5/8] settings.json（最小テンプレ / hook 追記）...${RESET}"
