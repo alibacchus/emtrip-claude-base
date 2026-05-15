@@ -64,6 +64,43 @@ for f in "$LATEST_BACKUP"/memory_*.md; do
 done
 echo -e "${GREEN}✅ memory restored${RESET}"
 
+# 4. settings.json から fact-check hook を除去 (PostToolUse 配列のみ touch)
+if [ -f ~/.claude/settings.json ] && grep -q "emtrip-post-tool-fact-check.sh" ~/.claude/settings.json; then
+  python3 - ~/.claude/settings.json <<'PYEOF'
+import json, sys
+path = sys.argv[1]
+with open(path) as f:
+    data = json.load(f)
+hooks = data.get("hooks", {})
+post = hooks.get("PostToolUse", [])
+filtered = []
+for h in post:
+    inner = [i for i in h.get("hooks", []) if "emtrip-post-tool-fact-check.sh" not in i.get("command", "")]
+    if inner:
+        h["hooks"] = inner
+        filtered.append(h)
+if filtered or "PostToolUse" in hooks:
+    if filtered:
+        hooks["PostToolUse"] = filtered
+    else:
+        hooks.pop("PostToolUse", None)
+with open(path, "w") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+PYEOF
+  echo -e "${GREEN}✅ settings.json から fact-check hook を除去${RESET}"
+fi
+
+# 5. PATH 設定行を削除 (~/.zshrc / ~/.bashrc)
+for RC in "$HOME/.zshrc" "$HOME/.bashrc"; do
+  if [ -f "$RC" ] && grep -qF "emtrip-claude-base/bin" "$RC"; then
+    cp "$RC" "$RC.uninstall.bak"
+    # 直前のコメント行と PATH 行を除去 (sed BSD/GNU 両対応のため tmp 経由)
+    grep -v "emtrip-claude-base/bin" "$RC.uninstall.bak" | grep -v "# === EmTrip Claude wrapper" > "$RC"
+    echo -e "${GREEN}✅ $RC から PATH 設定を除去 (元は $RC.uninstall.bak に退避)${RESET}"
+  fi
+done
+
 echo ""
 echo "アンインストール完了。"
 echo "現環境の memory は $MEMORY_DIR.uninstall_temp/ に保存されています。"
+echo "PATH 設定を有効化解除: exec \$SHELL または新しいターミナルを開く"

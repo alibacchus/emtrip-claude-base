@@ -82,13 +82,56 @@ check "memory に 3店舗の所在地" "grep -q '池原酒造' $MEMORY_DIR/proje
 
 # === 4. Claude Code CLI ===
 echo ""
-echo -e "${YELLOW}[4/4] Claude Code CLI...${RESET}"
+echo -e "${YELLOW}[4/5] Claude Code CLI...${RESET}"
 
 if command -v claude >/dev/null 2>&1; then
   echo -e "${GREEN}✅ claude コマンドが見つかる${RESET}"
   PASS=$((PASS+1))
+  CLAUDE_AVAILABLE=1
 else
   echo -e "${YELLOW}⚠️  claude コマンドが未インストール（後で OK）${RESET}"
+  CLAUDE_AVAILABLE=0
+fi
+
+# === 5. ets wrapper / hook / behavioral verify ===
+echo ""
+echo -e "${YELLOW}[5/5] ets wrapper・hook・行動テスト...${RESET}"
+
+check "ets wrapper が存在" "[ -x $REPO_DIR/bin/ets ]"
+check "PostToolUse fact-check hook が存在" "[ -x $REPO_DIR/bin/emtrip-post-tool-fact-check.sh ]"
+check "fact-check 本体が存在" "[ -x $REPO_DIR/emtrip-fact-check.sh ]"
+
+# PATH に ets が乗っているか (任意・警告止まり)
+if command -v ets >/dev/null 2>&1; then
+  echo -e "${GREEN}✅ ets が PATH 上にある${RESET}"
+  PASS=$((PASS+1))
+else
+  echo -e "${YELLOW}⚠️  ets が PATH 上にない (install.sh を再実行 or ~/.zshrc を再 source)${RESET}"
+fi
+
+# settings.json に fact-check hook が登録されているか
+if grep -q "emtrip-post-tool-fact-check.sh" ~/.claude/settings.json 2>/dev/null; then
+  echo -e "${GREEN}✅ settings.json に fact-check hook 登録済み${RESET}"
+  PASS=$((PASS+1))
+else
+  echo -e "${YELLOW}⚠️  settings.json に fact-check hook 未登録 (install.sh を再実行)${RESET}"
+fi
+
+# 行動テスト (実際の Claude 出力を検証)
+if [ "$CLAUDE_AVAILABLE" = "1" ]; then
+  echo ""
+  echo -e "${YELLOW}=== 行動テスト実行 (Claude Code を実起動・1-2分) ===${RESET}"
+  echo -e "${BLUE}スキップしたい場合は Ctrl-C で中断 (それ以外の検証は完了済)${RESET}"
+  echo ""
+  if bash "$REPO_DIR/verify-behavioral.sh"; then
+    echo -e "${GREEN}✅ 行動テスト全件 PASS${RESET}"
+    PASS=$((PASS+1))
+  else
+    echo -e "${RED}❌ 行動テスト FAIL — Claude Code が memory を正しく読めていない可能性${RESET}"
+    FAIL=$((FAIL+1))
+  fi
+else
+  echo -e "${YELLOW}⚠️  claude 未インストールのため behavioral verify を SKIP${NC}"
 fi
 
 # === 結果 ===
@@ -103,7 +146,9 @@ if [ "$FAIL" -gt 0 ]; then
 fi
 
 echo ""
-echo -e "${GREEN}全て OK。Claude Code を起動してください: ${BLUE}claude${RESET}"
+echo -e "${GREEN}全て OK。次のいずれかで Claude Code を起動してください:${RESET}"
+echo -e "  ${BLUE}ets${RESET}      ← 推奨 (memory が確実に load される wrapper)"
+echo -e "  ${BLUE}claude${NC}   ← 素の起動 (CWD によっては memory が読まれない)"
 echo ""
 echo "試しのプロンプト例:"
 echo "  - \"EmTripのMVVを教えて\""

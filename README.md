@@ -21,6 +21,18 @@ EmTrip 特化 Claude Code 環境（skills + memory + CLAUDE.md）を、与那国
 
 → 石垣の Claude Code で「ココロクロス3店舗の所在地は？」と聞くと **正確に答える**。「emtrip-ceoで壁打ちして」と言うと **CEOアドバイザーモード** が起動する。
 
+### ハルシネーション 3 層防御 (2026-05-15 追加)
+
+「石垣 Mac で bootstrap は合格表示 → 実 Claude が固有名詞を創作」事象を機械的に防ぐ仕組み:
+
+| 層 | 役割 | 実体 |
+|---|---|---|
+| **層1: ets wrapper** | Claude Code を必ず HOME CWD で起動し memory を確実に load | `bin/ets` |
+| **層2: PostToolUse hook** | Desktop/契約/営業 配下の .md/.txt 保存時に fact-check 自動実行・FATAL でブロック | `bin/emtrip-post-tool-fact-check.sh` |
+| **層3: behavioral verify** | install 後に実 Claude 出力を3 CWDで検証 (memory load + 固有名詞テスト) | `verify-behavioral.sh` |
+
+これにより **「verify は PASS なのに実 Claude が創作」事象を install 時に検出**できる。
+
 ---
 
 ## 何が**入っていない**か（今回スコープ外）
@@ -51,7 +63,9 @@ bash install.sh
 bash verify.sh
 ```
 
-→ 完了。`claude` を起動して「EmTripのMVVを教えて」と聞けば動作する。
+→ 完了。`exec $SHELL` でPATH再読込→ **`ets`** を起動して「EmTripのMVVを教えて」と聞けば動作する。
+
+> **`ets` を使うこと** (素の `claude` は CWD によって memory が読まれず、固有名詞の創作が起きやすい)。
 
 ---
 
@@ -60,10 +74,14 @@ bash verify.sh
 ```
 emtrip-claude-base/
 ├── README.md                  ← この文書
-├── install.sh                 ← 自動セットアップ
+├── install.sh                 ← 自動セットアップ (wrapper PATH登録・hook注入も含む)
 ├── uninstall.sh               ← 戻す用
-├── verify.sh                  ← 動作確認
+├── verify.sh                  ← 動作確認 (静的 + 行動テスト)
+├── verify-behavioral.sh       ← 行動テスト本体 (Claude 出力検証・固有名詞)
 ├── emtrip-fact-check.sh       ← 外部発信文書のハルシネーション機械検出
+├── bin/
+│   ├── ets                    ← Claude wrapper (HOME CWD で起動・memory 確実 load)
+│   └── emtrip-post-tool-fact-check.sh   ← PostToolUse hook (Desktop/契約/営業 自動 fact-check)
 ├── .gitignore                 ← 個人情報除外
 ├── claude/
 │   ├── CLAUDE.md              ← グローバル指示

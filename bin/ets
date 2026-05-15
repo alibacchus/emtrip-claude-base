@@ -1,0 +1,42 @@
+#!/bin/bash
+# ets = EmTrip claude (wrapper)
+#
+# 目的: Claude Code を必ず HOME ディレクトリ ($HOME) CWD で起動することで、
+# memory ($HOME/.claude/projects/-Users-<user>/memory/) が確実に load されるようにする。
+#
+# 背景: Claude Code の memory は CWD スコープで namespacing されている。
+# ~/Desktop や任意の作業ディレクトリで `claude` を直接起動すると、
+# その CWD 用の空 memory が load され、EmTrip の rich memory (固有名詞・店舗等) が読まれない。
+# 結果として「ぷざま」「中川孝之」等のハルシネーションが発生する。
+#
+# 使い方:
+#   ets                    # home CWD で対話セッション開始
+#   ets -p "質問"           # home CWD で 1-shot non-interactive
+#   ets --add-dir ~/Desktop  # 作業対象ディレクトリを追加 (memory は home dir の memory が load される)
+#
+# 引数はそのまま claude に passthrough する。
+# 元の CWD は自動で --add-dir 経由で Claude に伝わる。
+
+set -e
+
+CLAUDE_BIN=""
+if command -v claude >/dev/null 2>&1; then
+  CLAUDE_BIN="$(command -v claude)"
+elif [ -x "$HOME/.local/bin/claude" ]; then
+  CLAUDE_BIN="$HOME/.local/bin/claude"
+elif [ -x "/usr/local/bin/claude" ]; then
+  CLAUDE_BIN="/usr/local/bin/claude"
+else
+  echo "claude CLI が見つかりません" >&2
+  echo "  インストール: npm install -g @anthropic-ai/claude-code" >&2
+  exit 1
+fi
+
+ORIG_CWD="$(pwd)"
+ADD_DIR_ARG=()
+if [ "$ORIG_CWD" != "$HOME" ] && [ -d "$ORIG_CWD" ]; then
+  ADD_DIR_ARG=(--add-dir "$ORIG_CWD")
+fi
+
+cd "$HOME"
+exec "$CLAUDE_BIN" "${ADD_DIR_ARG[@]}" "$@"
